@@ -17,7 +17,7 @@ module.exports = {
       '/goods/*':{
         target:'http://localhost:9000'
       },
-      '/users/*':{
+      '/users/**':{
         target:'http://localhost:9000'
       }
     },
