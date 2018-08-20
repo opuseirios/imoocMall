@@ -9,6 +9,8 @@ import infiniteScroll from 'vue-infinite-scroll'
 Vue.config.productionTip = false
 
 import './assets/scss/index.scss'
+import './assets/scss/product.scss'
+import './assets/scss/checkout.scss'
 
 Vue.use(VueLazyLoad,{
   loading:'/static/loading-svg/loading-bars.svg',

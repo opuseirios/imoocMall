@@ -122,7 +122,7 @@
                   Item total: <span class="total-price">{{totalPrice | currency('¥')}}</span>
                 </div>
                 <div class="btn-wrap">
-                  <a class="btn btn--red"  @click="">Checkout</a>
+                  <a class="btn btn--red" :class="{'btn--dis':checkedCount===0}"  @click="checkOut">Checkout</a>
                 </div>
               </div>
             </div>
@@ -250,6 +250,14 @@
             if(res.status==='0'){
               console.log('updata suc');
             }
+          })
+        },
+        checkOut(){
+          if(this.checkedCount===0){
+            return
+          }
+          this.$router.push({
+            path:'/address'
           })
         }
       }
