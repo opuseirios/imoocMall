@@ -3,6 +3,8 @@ var router = express.Router();
 
 var User = require('./../models/user')
 
+require('./../util/util')
+
 /* GET users listing. */
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
@@ -267,4 +269,118 @@ router.post("/delAddress", function (req,res,next) {
     }
   });
 });
+
+
+/*支付*/
+router.post('/payMent',function (req,res,next) {
+  var userId = req.cookies.userId,
+     orderTotal = req.body.orderTotal,
+    addressId = req.body.addressId;
+  User.findOne({userId:userId}, function (err,doc) {
+    if(err){
+      res.json({
+        status:"1",
+        msg:err.message,
+        result:''
+      });
+    }else{
+      var address = '',goodsList = [];
+      //获取当前用户的地址信息
+      doc.addressList.forEach((item)=>{
+        if(addressId==item.addressId){
+          address = item;
+        }
+      })
+      //获取用户购物车的购买商品
+      doc.cartList.filter((item)=>{
+        if(item.checked=='1'){
+          goodsList.push(item);
+        }
+      });
+
+      var platform = '622';
+      var r1 = Math.floor(Math.random()*10);
+      var r2 = Math.floor(Math.random()*10);
+
+      var sysDate = new Date().Format('yyyyMMddhhmmss');
+      var createDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+      var orderId = platform+r1+sysDate+r2;
+      var order = {
+        orderId:orderId,
+        orderTotal:orderTotal,
+        addressInfo:address,
+        goodsList:goodsList,
+        orderStatus:'1',
+        createDate:createDate
+      };
+
+      doc.orderList.push(order);
+
+      doc.save(function (err1,doc1) {
+        if(err1){
+          res.json({
+            status:"1",
+            msg:err1.message,
+            result:''
+          });
+        }else{
+          res.json({
+            status:"0",
+            msg:'',
+            result:{
+              orderId:order.orderId,
+              orderTotal:order.orderTotal
+            }
+          });
+        }
+      });
+    }
+  })
+})
+
+/*根据订单ID查询订单信心*/
+router.get('/orderDetail',function (req,res,next) {
+  var userId = req.cookies.userId,orderId = req.param('orderId');
+  User.findOne({userId},function (err,userInfo) {
+    if(err){
+      res.json({
+        status:"1",
+        msg:err.message,
+        result:''
+      });
+    }else {
+      var orderList = userInfo.orderList;
+      if(orderList.length>0){
+        var orderTotal = 0;
+        orderList.forEach((item)=>{
+          if(item.orderId===orderId){
+            orderTotal = item.orderTotal;
+          }
+        })
+        if(orderTotal>0){
+          res.json({
+            status:'0',
+            msg:'',
+            result:{
+              orderId,
+              orderTotal
+            }
+          })
+        }else {
+          res.json({
+            status:"12002",
+            msg:'无此订单',
+            result:''
+          });
+        }
+      }else {
+        res.json({
+          status:"12001",
+          msg:'没有查询到订单',
+          result:''
+        });
+      }
+    }
+  })
+})
 module.exports = router;

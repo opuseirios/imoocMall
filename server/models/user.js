@@ -24,7 +24,11 @@ var userSchema = new mongoose.Schema({
       "tel" : Number,
       "isDefault" : Boolean
     }
-  ]
-});
+  ],
+},
+  /*防止$pullAll错误*/
+  {
+    usePushEach:true
+  });
 
 module.exports = mongoose.model('User',userSchema)
