@@ -33,6 +33,24 @@ app.use(cookieParser());
 /*设置静态目录*/
 app.use(express.static(path.join(__dirname, 'public')));
 
+/*拦截*/
+app.use(function (req,res,next) {
+  if(req.cookies.userId){
+    next();
+  }else {
+    console.log(req.path);
+    if(req.originalUrl === '/users/login' || req.originalUrl === '/users/logout' || req.path === '/goods/list'){
+      next();
+    }else {
+      res.json({
+        status:'10001',
+        msg:'当前未登录',
+        result:''
+      })
+    }
+  }
+})
+
 app.use('/', index);
 app.use('/users', users);
 app.use('/goods', goods);
